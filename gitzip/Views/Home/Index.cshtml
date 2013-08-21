@@ -17,6 +17,65 @@
             </p>
         </div>
     </section>
+    
+    <section class="form">
+  
+        <form class="form-horizontal">
+            <fieldset>
+
+                <!-- Form Name -->
+                <legend>Form Name</legend>
+
+                <!-- Button Drop Down -->
+                <div class="control-group">
+                    <label class="control-label" for="txtUrl">URL</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input id="txtUrl" name="txtUrl" class="input-xxlarge" placeholder="First, choose the online code repository" type="text" required="">
+                            <div class="btn-group">
+                                <button class="btn dropdown-toggle" data-toggle="dropdown">
+                                    repository
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Google Code</a></li>
+                                    <li><a href="#">Bitbucket</a></li>
+                                    <li><a href="#">Github</a></li>
+                                    <li><a href="#">Sourceforge</a></li>
+                                    <li><a href="#">Codeplex</a></li>
+                                    <li><a href="#">Savannah</a></li>
+                                    <li><a href="#">Gitorious</a></li>
+                                    <li><a href="#">Lanchpad</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Select Basic -->
+                <div class="control-group">
+                    <label class="control-label" for="ddArchiveType">Archive</label>
+                    <div class="controls">
+                        <select id="ddArchiveType" name="ddArchiveType" class="input-mini">
+                            <option>zip</option>
+                            <option>rar</option>
+                            <option>tar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Button -->
+                <div class="control-group">
+                    <label class="control-label" for="btnSubmit"></label>
+                    <div class="controls">
+                        <button id="btnSubmit" name="btnSubmit" class="btn btn-primary">Download</button>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+
+    </section>
 }
 <h3>We suggest the following:</h3>
 <ol class="round">
