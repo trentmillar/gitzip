@@ -1,25 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
 namespace gitzip.Models.api
 {
     public class PageLink
     {
-        string _name;
-        bool _isFolder;
-
-        public string Name { get { return _name; } }
+        public string Name { get; private set; }
         public Uri Uri { get; private set; }
+        public Uri RawUri { get; private set; }
         public string Path { get; private set; }
-        public bool IsFolder { get { return _isFolder; } }
+        public bool IsFolder { get; private set; }
 
-        public PageLink(string name, Uri uri, string path, bool isFolder)
+        public PageLink(string name, Uri uri, Uri rawUri, string path, bool isFolder)
         {
-            _name = name;
+            Name = name;
             Uri = uri;
-            _isFolder = isFolder;
+            RawUri = rawUri;
+            IsFolder = isFolder;
             Path = path;
         }
     }

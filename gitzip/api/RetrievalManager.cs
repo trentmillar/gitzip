@@ -10,6 +10,7 @@ using System.Web;
 using System.Xml;
 using HtmlAgilityPack;
 using gitzip.Models.api;
+using gitzip.api;
 using gitzip.util;
 
 namespace gitzip.api
@@ -17,7 +18,8 @@ namespace gitzip.api
     public enum RepositoryEnum
     {
         Github,
-        Google,
+        GoogleSVN,
+        GoogleHG,
         Sourceforge,
         Launchpad,
         Codeplex,
@@ -31,20 +33,20 @@ namespace gitzip.api
     {
         public static RepositoryEnum GetRepositoryTypeFromUrl(Uri url)
         {
-            switch(url.Host.ToLower())
-            {
-                case "github.com":
-                    return RepositoryEnum.Github;
-                case "google.com":
-                    return RepositoryEnum.Google;
-                default:
-                    string logMe = url.ToString();
-                    return RepositoryEnum.Unknown;
+            if(url.Host.Contains("github.com"))
+                return RepositoryEnum.Github;
 
+            if (url.Host.Contains("googlecode.com"))
+                return RepositoryEnum.GoogleSVN;
 
-            }
+            if (url.Host.Contains("code.google.com"))
+                return RepositoryEnum.GoogleHG;
+
+            return RepositoryEnum.Unknown;
+
         }
     }
+
     public class RetrievalManager
     {
         ManualResetEvent _waitingForStop;
@@ -53,7 +55,6 @@ namespace gitzip.api
         Thread _readingThread;
         String _selectedSourceType;
         private Uri _targetUrl;
-
 
         public void Run(string url)
         {
@@ -77,7 +78,6 @@ namespace gitzip.api
 
             try
             {
-                string tempPath = IOHelper.GetUniquePath();
                 RunSvn(type);
             }
             catch (Exception ex)
@@ -152,13 +152,13 @@ namespace gitzip.api
         {
             string baseUrl = _targetUrl.ToString();
 
-            if (repositoryType == RepositoryEnum.Google)
+            /*if (repositoryType == RepositoryEnum.Google)
             {
                 if (baseUrl.EndsWith("/") == false)
                     baseUrl += "/";
             }
 
-            /*if (baseFolder.EndsWith("\\") == false)
+            if (baseFolder.EndsWith("\\") == false)
                 baseFolder += "\\";*/
 
             /*List<FolderLinkData> urls = new List<FolderLinkData>();
@@ -189,12 +189,12 @@ namespace gitzip.api
                 relative = relative.Replace("/", "\\");
                 string targetFolder = Path.Combine(baseFolder, relative);
                 if (Directory.Exists(targetFolder) == false)
-                    Directory.CreateDirectory(targetFolder);
-*/
-                if (repositoryType == RepositoryEnum.Google)
-                {
-                    /*List<string> links = ParseLinks(_targetUrl);
+                    Directory.CreateDirectory(targetFolder);*/
 
+                if (repositoryType == RepositoryEnum.GoogleSVN)
+                {
+                    List<PageLink> links = ParseLinks(_targetUrl);
+                    /*
                     foreach (string link in links)
                     {
                         string linkFullUrl = _targetUrl + link;
@@ -215,8 +215,6 @@ namespace gitzip.api
                 else if (repositoryType == RepositoryEnum.Github)
                 {
                     List<PageLink> links = ParseGitLinks(_targetUrl);
-                    /*int pos = _targetUrl.ToString().IndexOf("/?");
-                    string serverUrl = _targetUrl.ToString().Substring(0, pos);*/
                     string path = IOHelper.GetUniquePath();
                     foreach (PageLink link in links)
                     {
@@ -224,24 +222,11 @@ namespace gitzip.api
                         {
                             lock (_filesToDownload)
                             {
-                                _filesToDownload.Add(new FileDownloadData(link.Uri, Path.Combine(path, link.Path), link.Name));
+                                _filesToDownload.Add(new FileDownloadData(link.RawUri, path + link.Path, link.Name));
                             }
                         }
-                        /*string linkFullUrl = serverUrl + link.Url;
-                        if (link.IsFolder == true)
-                            urls.Add(new FolderLinkData(linkFullUrl, targetUrlData.RelativePath + link.Name + "\\"));
-                        else
-                        {
-                            string fileName = targetFolder + link.Name;
-
-                            lock (_filesToDownload)
-                            {
-                                _filesToDownload.Add(new FileDownloadData(linkFullUrl, fileName));
-                            }
-                        }*/
                     }
                 }
-            /*}*/
         }
 
         private string FetchPage(Uri uri)
@@ -267,11 +252,20 @@ namespace gitzip.api
             return page;
         }
 
-        List<string> ParseLinks(string page)
+        List<PageLink> ParseLinks(Uri uri)
         {
+            string page = FetchPage(uri);
+            Guard.AssertNotNullOrEmpty(page, "Could not load the repository's page. Verify the URL is correct.");
+
+            List<PageLink> pageLinks = new List<PageLink>();
+
+            var html = new HtmlDocument();
+            html.LoadHtml(page);
+
             try
             {
-                return ParseLinksFromXml(page);
+                //return ParseLinksFromXml(page);
+                return ParseLinksFromHtml(page);
             }
             catch
             {
@@ -305,9 +299,9 @@ namespace gitzip.api
             return list;
         }
 
-        List<string> ParseLinksFromHtml(string page)
+        List<PageLink> ParseLinksFromHtml(string page)
         {
-            List<string> links = new List<string>();
+            List<PageLink> links = new List<PageLink>();
             string listArea = null;
 
             // Find list area: <ul> ... </ul>
@@ -330,7 +324,7 @@ namespace gitzip.api
                     {
                         string linkRelUrl = match.Groups[1].Value;
                         if (linkRelUrl != "..")
-                            links.Add(linkRelUrl);
+                            links.Add(new PageLink(null, new Uri(linkRelUrl), new Uri(linkRelUrl), linkRelUrl, false));
                     }
                 }
             }
@@ -358,12 +352,13 @@ namespace gitzip.api
             var nodes = body.SelectNodes("//a[@class=\"js-directory-link\"]");
             foreach (HtmlNode htmlNode in nodes)
             {
-                var targetUrl = new UriBuilder(_targetUrl.Scheme, _targetUrl.Host, _targetUrl.Port, htmlNode.Attributes["href"].Value).Uri;
+                string href = htmlNode.Attributes["href"].Value;
+                var targetUrl = new UriBuilder(_targetUrl.Scheme, _targetUrl.Host, _targetUrl.Port, href).Uri;
                 var title = htmlNode.Attributes["title"].Value;
                 var path = IOHelper.NormalizeFilePathFromUrlPath(targetUrl);
-                var icon = htmlNode.Ancestors("tr").First().SelectSingleNode("//td[@class=\"icon\"]/span");
-                var value = icon.Attributes["class"].Value;
-                bool isFolder = value.Contains("directory");
+                var testString = href.Replace(_targetUrl.AbsolutePath, "");
+                testString = testString.Substring(0, testString.IndexOf("/")).ToLower();
+                bool isFolder = testString == "tree";
 
                 if(isFolder)
                 {
@@ -371,7 +366,11 @@ namespace gitzip.api
                 }
                 else
                 {
-                    pageLinks.Add(new PageLink(title, targetUrl, path, isFolder));
+                    //clean blob link to raw link.
+                    Uri rawUrl = new Uri(targetUrl.ToString().Replace("/blob/", "/raw/"));
+                    var rootComponent = _targetUrl.AbsolutePath.Replace("/", "\\") + "blob";
+                    path = path.Replace(rootComponent, "");
+                    pageLinks.Add(new PageLink(title, targetUrl, rawUrl, path, isFolder));
                 }
             }
 
@@ -432,6 +431,12 @@ namespace gitzip.api
         void DownloadFile(FileDownloadData file)
         {
             WriteToScreen("Downloading File: " + file.Uri.ToString());
+
+            var directory = new DirectoryInfo(Path.GetDirectoryName(file.Path));
+            if(!directory.Exists)
+            {
+                directory.Create();
+            }
 
             WebRequest webRequest = WebRequest.Create(file.Uri);
             WebResponse webResponse = null;

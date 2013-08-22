@@ -65,19 +65,28 @@ namespace gitzip.Tests
         #endregion
 
 
-        /// <summary>
-        ///A test for Run
-        ///</summary>
-        // TODO: Ensure that the UrlToTest attribute specifies a URL to an ASP.NET page (for example,
-        // http://.../Default.aspx). This is necessary for the unit test to be executed on the web server,
-        // whether you are testing a page, web service, or a WCF service.
-        [TestMethod()]
-        public void RunTest()
+        [TestMethod]
+        public void RetrievalFromGithub_FuncTest()
         {
-            RetrievalManager target = new RetrievalManager(); // TODO: Initialize to an appropriate value
-            string url = "https://github.com/VinceG/Bootstrap-Admin-Theme/"; // TODO: Initialize to an appropriate value
+            RetrievalManager target = new RetrievalManager();
+            string url = "https://github.com/trentmillar/research-repo/";//"https://github.com/VinceG/Bootstrap-Admin-Theme/"; 
             target.Run(url);
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        [TestMethod]
+        public void RetrievalFromGC_SVN_FuncTest()
+        {
+            RetrievalManager target = new RetrievalManager();
+            string url = "https://code.google.com/p/tf4r/source/browse/";
+            target.Run(url);
+        }
+
+        [TestMethod]
+        public void RetrievalFromGC_HG_FuncTest()
+        {
+            RetrievalManager target = new RetrievalManager();
+            string url = "https://code.google.com/p/bitverse-unity-gui/";
+            target.Run(url);
         }
     }
 }

@@ -46,6 +46,12 @@
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="SharpSvn">
+      <HintPath>..\packages\SharpSvn.1.7-x86.1.7010.2403\lib\net20\SharpSvn.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpSvn.UI">
+      <HintPath>..\packages\SharpSvn.1.7-x86.1.7010.2403\lib\net20\SharpSvn.UI.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
@@ -167,7 +173,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="api\DownloadController.cs" />
+    <Compile Include="api\IRepositoryBase.cs" />
     <Compile Include="api\RetrievalManager.cs" />
+    <Compile Include="api\SvnManager.cs" />
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
