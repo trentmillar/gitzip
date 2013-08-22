@@ -7,22 +7,21 @@ namespace gitzip.Models.api
 {
     public class FileDownloadData
     {
-        string _url;
-        string _fileName;
+        private string _fileName;
 
-        public string Url
-        {
-            get { return _url; }
-        }
+        public Uri Uri { get; private set; }
 
         public string FileName
         {
             get { return _fileName; }
         }
 
-        public FileDownloadData(string url, string fileName)
+        public string Path { get; private set; }
+
+        public FileDownloadData(Uri uri, String path, string fileName)
         {
-            _url = url;
+            Path = path;
+            Uri = uri;
             _fileName = fileName;
         }
     }

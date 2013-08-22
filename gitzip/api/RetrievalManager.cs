@@ -52,6 +52,7 @@ namespace gitzip.api
         List<FileDownloadData> _filesToDownload;
         Thread _readingThread;
         String _selectedSourceType;
+        private Uri _targetUrl;
 
 
         public void Run(string url)
@@ -63,8 +64,8 @@ namespace gitzip.api
             _waitingForStop = new ManualResetEvent(false);
             _filesToDownload = new List<FileDownloadData>();
 
-            Uri uri = new Uri(url);
-            RepositoryEnum type = RepositoryHelper.GetRepositoryTypeFromUrl(uri);
+            _targetUrl = new Uri(url);
+            RepositoryEnum type = RepositoryHelper.GetRepositoryTypeFromUrl(_targetUrl);
 
             List<Thread> downloadThreads = new List<Thread>();
             for (int i = 0; i < 5; i++)
@@ -77,7 +78,7 @@ namespace gitzip.api
             try
             {
                 string tempPath = IOHelper.GetUniquePath();
-                RunSvn(tempPath, url, type);
+                RunSvn(type);
             }
             catch (Exception ex)
             {
@@ -131,7 +132,7 @@ namespace gitzip.api
 
                         try
                         {
-                            DownloadFile(fileDownloadData.Url, fileDownloadData.FileName);
+                            DownloadFile(fileDownloadData);
                             retry = false;
                         }
                         catch (Exception ex)
@@ -147,18 +148,20 @@ namespace gitzip.api
             }
         }
 
-        void RunSvn(string baseFolder, string baseUrl, RepositoryEnum repositoryType)
+        void RunSvn(RepositoryEnum repositoryType)
         {
+            string baseUrl = _targetUrl.ToString();
+
             if (repositoryType == RepositoryEnum.Google)
             {
                 if (baseUrl.EndsWith("/") == false)
                     baseUrl += "/";
             }
 
-            if (baseFolder.EndsWith("\\") == false)
-                baseFolder += "\\";
+            /*if (baseFolder.EndsWith("\\") == false)
+                baseFolder += "\\";*/
 
-            List<FolderLinkData> urls = new List<FolderLinkData>();
+            /*List<FolderLinkData> urls = new List<FolderLinkData>();
             urls.Add(new FolderLinkData(baseUrl, ""));
 
             while (urls.Count > 0)
@@ -172,15 +175,14 @@ namespace gitzip.api
                     }
                     break;
                 }
-
                 FolderLinkData targetUrlData = urls[0];
-                string targetUrl = targetUrlData.Url;
+                _targetUrl = targetUrlData.Url;
                 urls.RemoveAt(0);
 
                 // Create the folder
                 string relative;
                 if (targetUrlData.RelativePath == null)
-                    relative = targetUrl.Substring(baseUrl.Length);
+                    relative = _targetUrl.Substring(baseUrl.Length);
                 else
                     relative = targetUrlData.RelativePath;
 
@@ -188,33 +190,14 @@ namespace gitzip.api
                 string targetFolder = Path.Combine(baseFolder, relative);
                 if (Directory.Exists(targetFolder) == false)
                     Directory.CreateDirectory(targetFolder);
-
-                // Download target page
-                string page = null;
-                bool retry = true;
-                while (retry == true)
-                {
-                    if (_waitingForStop.WaitOne(0, false) == true)
-                        return;
-
-                    try
-                    {
-                        page = DownloadUrl(targetUrl);
-                        retry = false;
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteToScreen("Failed to download: " + ex.Message);
-                    }
-                }
-
+*/
                 if (repositoryType == RepositoryEnum.Google)
                 {
-                    List<string> links = ParseLinks(page);
+                    /*List<string> links = ParseLinks(_targetUrl);
 
                     foreach (string link in links)
                     {
-                        string linkFullUrl = targetUrl + link;
+                        string linkFullUrl = _targetUrl + link;
                         if (linkFullUrl.EndsWith("/") == true)
                         {
                             urls.Add(new FolderLinkData(linkFullUrl, null));
@@ -227,17 +210,24 @@ namespace gitzip.api
                                 _filesToDownload.Add(new FileDownloadData(linkFullUrl, fileName));
                             }
                         }
-                    }
+                    }*/
                 }
                 else if (repositoryType == RepositoryEnum.Github)
                 {
-                    List<PageLink> links = ParseGitLinks(page);
-                    int pos = targetUrl.IndexOf("/?");
-                    string serverUrl = targetUrl.Substring(0, pos);
-
+                    List<PageLink> links = ParseGitLinks(_targetUrl);
+                    /*int pos = _targetUrl.ToString().IndexOf("/?");
+                    string serverUrl = _targetUrl.ToString().Substring(0, pos);*/
+                    string path = IOHelper.GetUniquePath();
                     foreach (PageLink link in links)
                     {
-                        string linkFullUrl = serverUrl + link.Url;
+                        if(!link.IsFolder)
+                        {
+                            lock (_filesToDownload)
+                            {
+                                _filesToDownload.Add(new FileDownloadData(link.Uri, Path.Combine(path, link.Path), link.Name));
+                            }
+                        }
+                        /*string linkFullUrl = serverUrl + link.Url;
                         if (link.IsFolder == true)
                             urls.Add(new FolderLinkData(linkFullUrl, targetUrlData.RelativePath + link.Name + "\\"));
                         else
@@ -248,10 +238,33 @@ namespace gitzip.api
                             {
                                 _filesToDownload.Add(new FileDownloadData(linkFullUrl, fileName));
                             }
-                        }
+                        }*/
                     }
                 }
+            /*}*/
+        }
+
+        private string FetchPage(Uri uri)
+        {
+            // Download target page
+            string page = null;
+            bool retry = true;
+            while (retry)
+            {
+                if (_waitingForStop.WaitOne(0, false) == true)
+                    throw new StopException();
+
+                try
+                {
+                    page = DownloadUrl(uri);
+                    retry = false;
+                }
+                catch (Exception ex)
+                {
+                    WriteToScreen("Failed to download: " + ex.Message);
+                }
             }
+            return page;
         }
 
         List<string> ParseLinks(string page)
@@ -325,26 +338,44 @@ namespace gitzip.api
             return links;
         }
 
-        List<PageLink> ParseGitLinks(string page)
+        List<PageLink> ParseGitLinks(Uri uri)
         {
-            var html = new HtmlAgilityPack.HtmlDocument();
+            string page = FetchPage(uri);
+            Guard.AssertNotNullOrEmpty(page, "Could not load the repository's page. Verify the URL is correct.");
+
+            List<PageLink> pageLinks = new List<PageLink>();
+
+            var html = new HtmlDocument();
             html.LoadHtml(page);
+
             var body = html.DocumentNode.SelectSingleNode("//tbody[@data-url]");
 
             if (body == null || body.ChildNodes.Count == 0)
             {
-                return null;
+                return pageLinks;
             }
 
             var nodes = body.SelectNodes("//a[@class=\"js-directory-link\"]");
             foreach (HtmlNode htmlNode in nodes)
             {
+                var targetUrl = new UriBuilder(_targetUrl.Scheme, _targetUrl.Host, _targetUrl.Port, htmlNode.Attributes["href"].Value).Uri;
+                var title = htmlNode.Attributes["title"].Value;
+                var path = IOHelper.NormalizeFilePathFromUrlPath(targetUrl);
                 var icon = htmlNode.Ancestors("tr").First().SelectSingleNode("//td[@class=\"icon\"]/span");
                 var value = icon.Attributes["class"].Value;
-                isFolder = value.Contains("directory");
+                bool isFolder = value.Contains("directory");
+
+                if(isFolder)
+                {
+                    pageLinks.AddRange(ParseGitLinks(targetUrl));
+                }
+                else
+                {
+                    pageLinks.Add(new PageLink(title, targetUrl, path, isFolder));
+                }
             }
 
-            List<PageLink> links = new List<PageLink>();
+            /*List<PageLink> links = new List<PageLink>();
 
             string dataStartMarker = "class=\"js-directory-link\"";
             string nameMarker = "title=\"";
@@ -357,7 +388,7 @@ namespace gitzip.api
                     if (line.Contains(dataStartMarker) == false)
                         continue;
                     
-                    bool isFolder = false;
+                    
                     if (line[dataStartMarker.Length] == 'd')
                         isFolder = true;
 
@@ -392,17 +423,17 @@ namespace gitzip.api
 
                     links.Add(new PageLink(name, url, isFolder));
                 }
-            }
+            }*/
 
-            return links;
+            return pageLinks;
         }
 
         #region Download helper functions
-        void DownloadFile(string url, string fileName)
+        void DownloadFile(FileDownloadData file)
         {
-            WriteToScreen("Downloading File: " + url);
+            WriteToScreen("Downloading File: " + file.Uri.ToString());
 
-            WebRequest webRequest = WebRequest.Create(url);
+            WebRequest webRequest = WebRequest.Create(file.Uri);
             WebResponse webResponse = null;
             Stream responseStream = null;
             try
@@ -410,7 +441,7 @@ namespace gitzip.api
                 webResponse = webRequest.GetResponse();
                 responseStream = webResponse.GetResponseStream();
 
-                using (FileStream fs = new FileStream(fileName, FileMode.Create))
+                using (FileStream fs = new FileStream(file.Path, FileMode.Create))
                 {
                     byte[] buffer = new byte[1024];
                     int readSize;
@@ -430,12 +461,12 @@ namespace gitzip.api
             }
         }
 
-        string DownloadUrl(string url)
+        string DownloadUrl(Uri uri)
         {
-            WriteToScreen("Downloading: " + url);
+            WriteToScreen("Downloading: " + uri);
             using (WebClient client = new WebClient())
             {
-                string data = client.DownloadString(url);
+                string data = client.DownloadString(uri);
 
                 return data;
             }

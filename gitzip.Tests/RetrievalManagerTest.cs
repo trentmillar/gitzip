@@ -72,9 +72,6 @@ namespace gitzip.Tests
         // http://.../Default.aspx). This is necessary for the unit test to be executed on the web server,
         // whether you are testing a page, web service, or a WCF service.
         [TestMethod()]
-        [HostType("ASP.NET")]
-        [AspNetDevelopmentServerHost("C:\\c\\gitzip\\gitzip", "/")]
-        [UrlToTest("http://localhost:52208/")]
         public void RunTest()
         {
             RetrievalManager target = new RetrievalManager(); // TODO: Initialize to an appropriate value
