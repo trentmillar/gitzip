@@ -173,9 +173,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="api\DownloadController.cs" />
-    <Compile Include="api\IRepositoryBase.cs" />
+    <Compile Include="api\repo\provider\GithubHttpManager.cs" />
+    <Compile Include="api\repo\util\Messaging.cs" />
+    <Compile Include="api\repo\util\RepositoryHelper.cs" />
+    <Compile Include="api\repo\util\RepositoryEnum.cs" />
+    <Compile Include="api\repo\RepositoryBase.cs" />
+    <Compile Include="api\repo\provider\SvnHttpManager.cs" />
     <Compile Include="api\RetrievalManager.cs" />
-    <Compile Include="api\SvnManager.cs" />
+    <Compile Include="api\repo\provider\SvnManager.cs" />
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -188,9 +193,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
-    <Compile Include="Models\api\FileDownloadData.cs" />
-    <Compile Include="Models\api\FolderLinkData.cs" />
-    <Compile Include="Models\api\PageLink.cs" />
+    <Compile Include="api\repo\model\FileDownloadData.cs" />
+    <Compile Include="api\repo\model\FolderLinkData.cs" />
+    <Compile Include="api\repo\model\PageLink.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="util\FileStorage.cs" />
     <Compile Include="util\Guard.cs" />
@@ -319,6 +324,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Content\icons\" />
+    <Folder Include="Models\api\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

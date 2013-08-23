@@ -14,5 +14,10 @@ namespace gitzip.util
         {
             return uri.AbsolutePath.Replace("/", "\\");
         }
+
+        public static string NormalizeFilePathFromUrlPath(string url)
+        {
+            return url.Replace("/", "\\");
+        }
     }
 }
