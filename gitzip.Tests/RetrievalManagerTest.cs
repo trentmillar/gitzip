@@ -77,7 +77,7 @@ namespace gitzip.Tests
         public void RetrievalFromGC_SVN_FuncTest()
         {
             RetrievalManager target = new RetrievalManager();
-            string url = "https://code.google.com/p/tf4r/source/browse/";
+            string url = "http://critterai.googlecode.com/svn/trunk/";
             target.Run(url);
         }
 

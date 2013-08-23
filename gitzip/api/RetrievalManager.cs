@@ -56,6 +56,8 @@ namespace gitzip.api
         String _selectedSourceType;
         private Uri _targetUrl;
 
+        public string Path { get; private set; }
+
         public void Run(string url)
         {
             Guard.AssertNotNullOrEmpty(url, "Source code repository URL is required.");
@@ -151,78 +153,25 @@ namespace gitzip.api
         void RunSvn(RepositoryEnum repositoryType)
         {
             string baseUrl = _targetUrl.ToString();
+            Path = null;
 
-            /*if (repositoryType == RepositoryEnum.Google)
-            {
-                if (baseUrl.EndsWith("/") == false)
-                    baseUrl += "/";
-            }
-
-            if (baseFolder.EndsWith("\\") == false)
-                baseFolder += "\\";*/
-
-            /*List<FolderLinkData> urls = new List<FolderLinkData>();
-            urls.Add(new FolderLinkData(baseUrl, ""));
-
-            while (urls.Count > 0)
-            {
-                if (_waitingForStop.WaitOne(0, false) == true)
+                if (repositoryType == RepositoryEnum.GoogleSVN 
+                    || repositoryType == RepositoryEnum.GoogleHG)
                 {
-                    WriteToScreen("Stopping...");
-                    lock (_filesToDownload)
-                    {
-                        _filesToDownload.Clear();
-                    }
-                    break;
-                }
-                FolderLinkData targetUrlData = urls[0];
-                _targetUrl = targetUrlData.Url;
-                urls.RemoveAt(0);
-
-                // Create the folder
-                string relative;
-                if (targetUrlData.RelativePath == null)
-                    relative = _targetUrl.Substring(baseUrl.Length);
-                else
-                    relative = targetUrlData.RelativePath;
-
-                relative = relative.Replace("/", "\\");
-                string targetFolder = Path.Combine(baseFolder, relative);
-                if (Directory.Exists(targetFolder) == false)
-                    Directory.CreateDirectory(targetFolder);*/
-
-                if (repositoryType == RepositoryEnum.GoogleSVN)
-                {
-                    List<PageLink> links = ParseLinks(_targetUrl);
-                    /*
-                    foreach (string link in links)
-                    {
-                        string linkFullUrl = _targetUrl + link;
-                        if (linkFullUrl.EndsWith("/") == true)
-                        {
-                            urls.Add(new FolderLinkData(linkFullUrl, null));
-                        }
-                        else // file - download
-                        {
-                            string fileName = targetFolder + link;
-                            lock (_filesToDownload)
-                            {
-                                _filesToDownload.Add(new FileDownloadData(linkFullUrl, fileName));
-                            }
-                        }
-                    }*/
+                    Path = new SvnManager().FetchRepository(_targetUrl.ToString(), null);
+                    
                 }
                 else if (repositoryType == RepositoryEnum.Github)
                 {
                     List<PageLink> links = ParseGitLinks(_targetUrl);
-                    string path = IOHelper.GetUniquePath();
+                    Path = IOHelper.GetUniquePath();
                     foreach (PageLink link in links)
                     {
                         if(!link.IsFolder)
                         {
                             lock (_filesToDownload)
                             {
-                                _filesToDownload.Add(new FileDownloadData(link.RawUri, path + link.Path, link.Name));
+                                _filesToDownload.Add(new FileDownloadData(link.RawUri, Path + link.Path, link.Name));
                             }
                         }
                     }

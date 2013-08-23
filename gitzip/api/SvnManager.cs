@@ -23,13 +23,21 @@ namespace gitzip.api
 
             if (revision.HasValue)
             {
-                args.Revision = revision.Value;
+                args.Revision = new SvnRevision(revision.Value);
             }
 
             using (SvnClient client = new SvnClient())
             {
-                client.CheckOut(target, root);
+                try
+                {
+                    client.CheckOut(target, root, args, out result);
+                }
+                catch (Exception e)
+                {
+                    
+                }
             }
+            return root;
         }
     }
 }
