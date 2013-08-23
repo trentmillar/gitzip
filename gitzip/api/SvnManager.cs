@@ -28,6 +28,8 @@ namespace gitzip.api
 
             using (SvnClient client = new SvnClient())
             {
+                client.Progress += ClientOnProgress;
+                client.Cancel += ClientOnCancel;
                 try
                 {
                     client.CheckOut(target, root, args, out result);
@@ -38,6 +40,16 @@ namespace gitzip.api
                 }
             }
             return root;
+        }
+
+        private void ClientOnCancel(object sender, SvnCancelEventArgs svnCancelEventArgs)
+        {
+            svnCancelEventArgs.Cancel = true;
+        }
+
+        void ClientOnProgress(object sender, SvnProgressEventArgs e)
+        {
+            long ratio = e.Progress/e.TotalProgress;
         }
     }
 }

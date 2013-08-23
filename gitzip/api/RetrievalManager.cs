@@ -56,7 +56,7 @@ namespace gitzip.api
         String _selectedSourceType;
         private Uri _targetUrl;
 
-        public string Path { get; private set; }
+        public string TargetS { get; private set; }
 
         public void Run(string url)
         {
@@ -153,25 +153,25 @@ namespace gitzip.api
         void RunSvn(RepositoryEnum repositoryType)
         {
             string baseUrl = _targetUrl.ToString();
-            Path = null;
+            TargetS = null;
 
                 if (repositoryType == RepositoryEnum.GoogleSVN 
                     || repositoryType == RepositoryEnum.GoogleHG)
                 {
-                    Path = new SvnManager().FetchRepository(_targetUrl.ToString(), null);
+                    TargetS = new SvnManager().FetchRepository(_targetUrl.ToString(), null);
                     
                 }
                 else if (repositoryType == RepositoryEnum.Github)
                 {
                     List<PageLink> links = ParseGitLinks(_targetUrl);
-                    Path = IOHelper.GetUniquePath();
+                    TargetS = IOHelper.GetUniquePath();
                     foreach (PageLink link in links)
                     {
                         if(!link.IsFolder)
                         {
                             lock (_filesToDownload)
                             {
-                                _filesToDownload.Add(new FileDownloadData(link.RawUri, Path + link.Path, link.Name));
+                                _filesToDownload.Add(new FileDownloadData(link.RawUri, TargetS + link.Path, link.Name));
                             }
                         }
                     }
@@ -381,7 +381,7 @@ namespace gitzip.api
         {
             WriteToScreen("Downloading File: " + file.Uri.ToString());
 
-            var directory = new DirectoryInfo(Path.GetDirectoryName(file.Path));
+            var directory = new DirectoryInfo(System.IO.Path.GetDirectoryName(file.Path));
             if(!directory.Exists)
             {
                 directory.Create();
