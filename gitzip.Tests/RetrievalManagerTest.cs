@@ -88,5 +88,13 @@ namespace gitzip.Tests
             string url = "https://code.google.com/p/bitverse-unity-gui/";
             target.Run(url);
         }
+
+        [TestMethod]
+        public void RetrievalFromCodeplex_SVN_FuncTest()
+        {
+            RetrievalManager target = new RetrievalManager();
+            string url = "https://htmlagilitypack.svn.codeplex.com/svn";
+            target.Run(url);
+        }
     }
 }
