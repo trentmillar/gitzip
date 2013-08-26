@@ -1,0 +1,154 @@
+﻿@model gitzip.Models.api.DownloadModel
+@{
+    ViewBag.Title = "GitZip: instantly download your favorite source code";
+    Layout = "~/Views/Shared/_GitzipLayout.cshtml";
+}
+
+<div class="wrapper">
+    <div class="comingsoonBlk">
+        <h1>Download Code</h1>
+        <p>We are pleased to anounced that our website is launching very soon.<br>
+                                                                              We are working very hard to get ready it.
+        </p>
+        <div class="socialMedia">
+            <a href="#" data-placement="top" data-original-title="Google Code">
+                <img style="width:32px" src="~/Content/images/google-code.png" alt="Google Code" title="Google Code">
+            </a>
+            <a href="#" data-placement="top" data-original-title="Github">
+                <img style="width:32px" src="~/Content/images/github.png" alt="Github" title="Github">
+            </a>
+            <a href="#" data-placement="top" data-original-title="Codeplex">
+                <img style="width:32px" src="~/Content/images/codeplex.png" alt="Codeplex" title="Codeplex">
+            </a>
+        </div>
+        
+        <section class="form">
+            <form id="submitForm" action="/api/Download/" method="POST" class="form-horizontal">
+                <fieldset>
+
+                    <!-- Form Name -->
+                    <legend>Zip a repository</legend>
+
+                    <!-- Button Drop Down -->
+                    <div class="control-group">
+                        <label class="control-label" for="txtUrl">URL</label>
+                        <div class="controls">
+                            <input id="@Html.IdFor(m=>m.Url)" class="input-xlarge" 
+                                   placeholder="enter the online repository URL" type="text" required=""/>
+                        </div>
+                    </div>
+
+                    <!-- Select Repo -->
+                    <div class="control-group">
+                        <label class="control-label" for="ddRepo">Online Location</label>
+                        <div class="controls">
+                            <select id="@Html.IdFor(m=>m.RepositoryType)" class="input-large" required="Help us locate your code by selecting the location.">
+                                <option>Google Code - SVN</option>
+                                <option>Google Code - HG</option>
+                                <option>Github</option>
+                                <option>Bitbucket</option>
+                                <option>Sourceforge</option>
+                                <option>Codeplex</option>
+                                <option>Savannah</option>
+                                <option>Gitorious</option>
+                                <option>Lanchpad</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Select Archive -->
+                    <div class="control-group">
+                        <label class="control-label" for="ddArchiveType">Archive</label>
+                        <div class="controls">
+                            <select id="@Html.IdFor(m=>m.ArchiveType)" class="input-small">
+                                <option>.zip</option>
+                                <option>.tar.gz</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Button -->
+                    <div class="control-group">
+                        <label class="control-label" for="btnSubmit"></label>
+                        <div class="controls">
+                            <button id="btnSubmit" name="btnSubmit" class="btn btn-primary"><img id="wait" src="~/Content/images/wait.gif"/>Download</button>
+                        </div>
+                    </div>
+
+                </fieldset>
+            </form>
+
+        </section>
+        <br class="clr">
+    </div>
+</div>
+
+@section scripts {
+        <script type="text/javascript"> 
+        // wait for the DOM to be loaded 
+     /*   $(document).ready(function() { 
+            // bind 'myForm' and provide a simple callback function 
+            $('#submitForm').ajaxForm(function() { 
+                alert("Thank you for your comment!"); 
+            }); 
+        });*/
+
+            $(document).ready(function() {
+                var $wait = $('#wait');
+                $wait.hide();
+
+                var $button = $('#btnSubmit');
+                $button.button('enable');
+                
+                $('#submitForm').submit(function (e) {
+                    e.preventDefault();
+                    var request = {
+                        'Url': $('#@Html.IdFor(m=>m.Url)').val(),
+                        'ArchiveType': $('#@Html.IdFor(m=>m.ArchiveType)').val(),
+                        'RepositoryType': $('#@Html.IdFor(m=>m.RepositoryType)').val()
+                    };
+                    // if ($(this).valid()) {
+                    $.ajax({
+                        url: this.action,
+                        type: 'POST',
+                        data: request, //$(this).serialize(),
+                        beforeSend: function (x, o) {
+                            $wait.show();
+                            $button.button('disable');
+                        },
+                        fail: function (request, status, error) {
+                            var errorMessage;
+
+                            if (request.responseText === undefined) {
+                                errorMessage = "Fail:\nrequest:" + request + "\nstatus:" + status + "\nerror:" + error;
+                            } else {
+                                errorMessage = "Fail:\nrequest:" + request.responseText + "\nstatus:" + status + "\nerror:" + error;
+                            }
+                            console.log(errorMessage);
+                            $wait.hide();
+                            $button.button('enable');
+                        },
+                        complete: function (xhr, status) {
+                            $wait.hide();
+                            $button.button('enable');
+                            switch (status) {
+                                case "success":
+                                    alert(xhr);
+                                    break;
+                                case "error":
+                                case "timeout":
+                                case "abort":
+                                case "parseerror":
+                                case "notmodified":
+                                    alert('error');
+                                    break;
+                            }
+                        }
+                    });
+                    return false;
+                });
+            });
+            
+            
+    </script> 
+}

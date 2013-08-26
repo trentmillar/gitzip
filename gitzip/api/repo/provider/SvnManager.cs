@@ -6,13 +6,11 @@ namespace gitzip.api
 {
     public class SvnManager : RepositoryBase
     {
-        protected override string FetchRepository(Arguments arg)
+        protected override void FetchRepository(Arguments arg)
         {
             Guard.AssertNotNullOrEmpty(arg.Url, "SVN URL must be set.");
 
             SvnUpdateResult result;
-
-            string root = IOHelper.GetUniquePath();
 
             SvnUriTarget target = new SvnUriTarget(arg.Url);
 
@@ -32,14 +30,13 @@ namespace gitzip.api
                 client.Cancel += ClientOnCancel;
                 try
                 {
-                    client.CheckOut(target, root, args, out result);
+                    client.CheckOut(target, RootPath, args, out result);
                 }
                 catch (Exception e)
                 {
                     
                 }
             }
-            return root;
         }
 
         private void ClientOnCancel(object sender, SvnCancelEventArgs svnCancelEventArgs)

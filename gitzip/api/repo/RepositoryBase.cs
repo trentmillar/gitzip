@@ -18,6 +18,8 @@ namespace gitzip.api
     public struct Results
     {
         public string Path;
+        public long FolderSize;
+        public long FileCount;
     }
 
     public abstract class RepositoryBase
@@ -26,7 +28,8 @@ namespace gitzip.api
         private readonly List<Thread> _downloadThreads;
         private List<FileDownloadData> _filesToDownload;
 
-        public long FileDownloadCount { get; private set; }
+        protected long FileDownloadCount { get; private set; }
+        protected string RootPath { get; private set; }
 
         protected ManualResetEvent FinishedReadingTree;
         protected ManualResetEvent WaitingForStop;
@@ -37,6 +40,7 @@ namespace gitzip.api
             WaitingForStop = new ManualResetEvent(false);
             _filesToDownload = new List<FileDownloadData>();
             FileDownloadCount = 0;
+            RootPath = IOHelper.GetUniqueDirectory();
 
             _downloadThreads = new List<Thread>();
             for (int i = 0; i < ConcurrentDownloadCount; i++)
@@ -67,9 +71,10 @@ namespace gitzip.api
         public Results Run(Arguments args)
         {
             var result = new Results();
+            result.Path = RootPath;
             try
             {
-                result.Path = FetchRepository(args);
+                FetchRepository(args);
             }
             catch (Exception ex)
             {
@@ -90,10 +95,13 @@ namespace gitzip.api
 
             Messaging.WriteToScreen("Done.");
 
+            result.FileCount = FileDownloadCount;
+            //todo get folder size
+
             return result;
         }
 
-        protected abstract string FetchRepository(Arguments args);
+        protected abstract void FetchRepository(Arguments args);
 
         private void DownloadFilesThread()
         {

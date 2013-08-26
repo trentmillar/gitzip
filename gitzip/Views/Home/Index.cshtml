@@ -31,16 +31,18 @@
                     <label class="control-label" for="txtUrl">URL</label>
                     <div class="controls">
                         <div class="input-append">
-                            <input id="txtUrl" name="txtUrl" class="input-xxlarge" placeholder="First, choose the online code repository" type="text" required="">
+                            <input id="txtUrl" name="txtUrl" class="input-xxlarge" 
+                                placeholder="First, choose the online code repository ->" type="text" required="">
                             <div class="btn-group">
                                 <button class="btn dropdown-toggle" data-toggle="dropdown">
                                     repository
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Google Code</a></li>
-                                    <li><a href="#">Bitbucket</a></li>
+                                    <li><a href="#">Google Code - SVN</a></li>
+                                    <li><a href="#">Google Code - HG</a></li>
                                     <li><a href="#">Github</a></li>
+                                    <li><a href="#">Bitbucket</a></li>
                                     <li><a href="#">Sourceforge</a></li>
                                     <li><a href="#">Codeplex</a></li>
                                     <li><a href="#">Savannah</a></li>
@@ -57,9 +59,9 @@
                     <label class="control-label" for="ddArchiveType">Archive</label>
                     <div class="controls">
                         <select id="ddArchiveType" name="ddArchiveType" class="input-mini">
-                            <option>zip</option>
-                            <option>rar</option>
-                            <option>tar</option>
+                            <option>.zip</option>
+                            @*<option>rar</option>*@
+                            <option>.tar.gz</option>
                         </select>
                     </div>
                 </div>

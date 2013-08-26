@@ -1,7 +1,9 @@
-﻿using gitzip.api;
+﻿using gitzip.Models.api;
+using gitzip.api;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting.Web;
+using gitzip.util;
 
 namespace gitzip.Tests
 {
@@ -70,7 +72,7 @@ namespace gitzip.Tests
         {
             RetrievalManager target = new RetrievalManager();
             string url = "https://github.com/trentmillar/research-repo/";//"https://github.com/VinceG/Bootstrap-Admin-Theme/"; 
-            target.Run(url);
+            target.Run(new DownloadModel { Url = url, ArchiveType = ".tar.gz" });
         }
 
         [TestMethod]
@@ -78,7 +80,7 @@ namespace gitzip.Tests
         {
             RetrievalManager target = new RetrievalManager();
             string url = "http://critterai.googlecode.com/svn/trunk/";
-            target.Run(url);
+            target.Run(new DownloadModel { Url = url, ArchiveType = ".tar.gz" });
         }
 
         [TestMethod]
@@ -86,7 +88,7 @@ namespace gitzip.Tests
         {
             RetrievalManager target = new RetrievalManager();
             string url = "https://code.google.com/p/bitverse-unity-gui/";
-            target.Run(url);
+            target.Run(new DownloadModel { Url = url, ArchiveType = ".tar.gz" });
         }
 
         [TestMethod]
@@ -94,7 +96,7 @@ namespace gitzip.Tests
         {
             RetrievalManager target = new RetrievalManager();
             string url = "https://htmlagilitypack.svn.codeplex.com/svn";
-            target.Run(url);
+            target.Run(new DownloadModel{ Url = url, ArchiveType = ".tar.gz"});
         }
     }
 }

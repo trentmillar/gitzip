@@ -186,6 +186,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\UploadController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
@@ -196,7 +197,9 @@
     <Compile Include="api\repo\model\FileDownloadData.cs" />
     <Compile Include="api\repo\model\FolderLinkData.cs" />
     <Compile Include="api\repo\model\PageLink.cs" />
+    <Compile Include="Models\api\DownloadModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="util\ArchiveHelper.cs" />
     <Compile Include="util\FileStorage.cs" />
     <Compile Include="util\Guard.cs" />
     <Compile Include="util\IOHelper.cs" />
@@ -204,10 +207,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap\bootstrap-responsive.min.css" />
-    <Content Include="Content\bootstrap\bootstrap-theme.css" />
-    <Content Include="Content\bootstrap\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap\bootstrap.css" />
     <Content Include="Content\bootstrap\bootstrap.min.css" />
+    <Content Include="Content\bootstrap\gitzip.css" />
+    <Content Include="Content\images\codeplex.png" />
+    <Content Include="Content\images\github.png" />
+    <Content Include="Content\images\google-code.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
@@ -324,19 +329,19 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Content\icons\" />
-    <Folder Include="Models\api\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Content\bootstrap\bootstrap.min.css.original" />
+    <Content Include="Views\Upload\Index.cshtml" />
     <None Include="Content\fonts\glyphicons-halflings-regular.eot" />
     <None Include="Content\fonts\glyphicons-halflings-regular.svg" />
     <None Include="Content\fonts\glyphicons-halflings-regular.ttf" />
     <None Include="Content\fonts\glyphicons-halflings-regular.woff" />
     <None Include="Scripts\jquery-1.9.1.min.map" />
     <Content Include="Views\Shared\_BootstrapLayout.cshtml" />
+    <Content Include="Views\Shared\_GitzipLayout.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

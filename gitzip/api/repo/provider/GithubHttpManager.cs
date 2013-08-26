@@ -10,22 +10,20 @@ namespace gitzip.api
     {
         private Uri _targetUrl;
 
-        protected override string FetchRepository(Arguments args)
+        protected override void FetchRepository(Arguments args)
         {
             Guard.AssertNotNullOrEmpty(args.Url, "Github repository URL must be set.");
 
             _targetUrl = new Uri(args.Url);
-            string root = IOHelper.GetUniquePath();
 
             List<PageLink> links = ParseGitLinks(_targetUrl);
             foreach (PageLink link in links)
             {
                 if (!link.IsFolder)
                 {
-                    AddToDownloadQueue(new FileDownloadData(link.RawUri, root + link.Path, link.Name));
+                    AddToDownloadQueue(new FileDownloadData(link.RawUri, RootPath + link.Path, link.Name));
                 }
             }
-            return root;
         }
 
         List<PageLink> ParseGitLinks(Uri uri)

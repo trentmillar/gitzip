@@ -12,12 +12,10 @@ namespace gitzip.api
     {
         private string _targetUrl;
 
-        protected override string FetchRepository(Arguments args)
+        protected override void FetchRepository(Arguments args)
         {
             _targetUrl = args.Url;
             Guard.AssertNotNullOrEmpty(_targetUrl, "SVN URL must be set.");
-
-            string root = IOHelper.GetUniquePath();
 
             if (!_targetUrl.EndsWith("/"))
             {
@@ -41,7 +39,7 @@ namespace gitzip.api
                 urls.RemoveAt(0);
 
                 // Create the folder
-                string relative;
+                /*string relative;
                 if (targetUrlData.RelativePath == null)
                 {
                     relative = targetUrl.Substring(_targetUrl.Length);
@@ -56,7 +54,7 @@ namespace gitzip.api
                 if (!Directory.Exists(targetFolder))
                 {
                     Directory.CreateDirectory(targetFolder);
-                }
+                }*/
 
                 List<PageLink> links = ParseLinks(new Uri(targetUrl));
 
@@ -68,13 +66,11 @@ namespace gitzip.api
                     }
                     else //Download - file
                     {
-                        string filePath = root + link.Path;
+                        string filePath = RootPath + link.Path;
                         AddToDownloadQueue(new FileDownloadData(link.Uri, filePath, link.Name));
                     }
                 }
             }
-
-            return root;
         }
 
         private List<PageLink> ParseLinks(Uri uri)

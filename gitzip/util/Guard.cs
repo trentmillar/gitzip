@@ -9,7 +9,15 @@ namespace gitzip.util
     {
         public static void AssertNotNullOrEmpty(string value, string message)
         {
-            if(string.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentNullException(message);
+            }
+        }
+
+        public static void AssertNotNull(object value, string message)
+        {
+            if (value == null)
             {
                 throw new ArgumentNullException(message);
             }
