@@ -79,7 +79,7 @@ namespace gitzip.Tests
         public void RetrievalFromGC_SVN_FuncTest()
         {
             RetrievalManager target = new RetrievalManager();
-            string url = "http://critterai.googlecode.com/svn/trunk/";
+            string url = "http://owasp-esapi-java.googlecode.com/svn/trunk/";// "http://critterai.googlecode.com/svn/trunk/";
             target.Run(new DownloadModel { Url = url, ArchiveType = ".tar.gz" });
         }
 
@@ -87,7 +87,15 @@ namespace gitzip.Tests
         public void RetrievalFromGC_HG_FuncTest()
         {
             RetrievalManager target = new RetrievalManager();
-            string url = "https://code.google.com/p/bitverse-unity-gui/";
+            string url = "https://code.google.com/p/python-twitter/";//"https://code.google.com/p/bitverse-unity-gui/"; 
+            target.Run(new DownloadModel { Url = url, ArchiveType = ".tar.gz" });
+        }
+
+        [TestMethod]
+        public void RetrievalFromGC_GIT_FuncTest()
+        {
+            RetrievalManager target = new RetrievalManager();
+            string url = "https://code.google.com/p/owasp-esapi-java-swingset/";//https://code.google.com/p/owaspantisamy/
             target.Run(new DownloadModel { Url = url, ArchiveType = ".tar.gz" });
         }
 
@@ -95,7 +103,7 @@ namespace gitzip.Tests
         public void RetrievalFromCodeplex_SVN_FuncTest()
         {
             RetrievalManager target = new RetrievalManager();
-            string url = "https://htmlagilitypack.svn.codeplex.com/svn";
+            string url = "https://tfsmetrics.svn.codeplex.com/svn"; //"https://htmlagilitypack.svn.codeplex.com/svn";
             target.Run(new DownloadModel{ Url = url, ArchiveType = ".tar.gz"});
         }
     }

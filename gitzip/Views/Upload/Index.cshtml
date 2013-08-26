@@ -1,7 +1,15 @@
-﻿@model gitzip.Models.api.DownloadModel
+﻿@using gitzip.api;
+@using gitzip.util;
+
+@model gitzip.Models.api.DownloadModel
 @{
     ViewBag.Title = "GitZip: instantly download your favorite source code";
     Layout = "~/Views/Shared/_GitzipLayout.cshtml";
+    
+    IDictionary<RepositoryEnum, string> repoNames = new Dictionary<RepositoryEnum, string>();
+    foreach(string s in Enum.GetNames(typeof(RepositoryEnum))){
+        
+    }
 }
 
 <div class="wrapper">
@@ -11,13 +19,13 @@
                                                                               We are working very hard to get ready it.
         </p>
         <div class="socialMedia">
-            <a href="#" data-placement="top" data-original-title="Google Code">
+            <a href="#" data-placement="top" data-original-title="@RepositoryEnum.GoogleSVN.ToString()">
                 <img style="width:32px" src="~/Content/images/google-code.png" alt="Google Code" title="Google Code">
             </a>
-            <a href="#" data-placement="top" data-original-title="Github">
+            <a href="#" data-placement="top" data-original-title="@RepositoryEnum.Github.ToString()">
                 <img style="width:32px" src="~/Content/images/github.png" alt="Github" title="Github">
             </a>
-            <a href="#" data-placement="top" data-original-title="Codeplex">
+            <a href="#" data-placement="top" data-original-title="@RepositoryEnum.CodeplexSVN.ToString()">
                 <img style="width:32px" src="~/Content/images/codeplex.png" alt="Codeplex" title="Codeplex">
             </a>
         </div>
@@ -31,7 +39,7 @@
 
                     <!-- Button Drop Down -->
                     <div class="control-group">
-                        <label class="control-label" for="txtUrl">URL</label>
+                        <label class="control-label" for="@Html.IdFor(m=>m.Url)">URL</label>
                         <div class="controls">
                             <input id="@Html.IdFor(m=>m.Url)" class="input-xlarge" 
                                    placeholder="enter the online repository URL" type="text" required=""/>
@@ -40,29 +48,29 @@
 
                     <!-- Select Repo -->
                     <div class="control-group">
-                        <label class="control-label" for="ddRepo">Online Location</label>
+                        <label class="control-label" for="@Html.IdFor(m=>m.RepositoryType)">Online Location</label>
                         <div class="controls">
                             <select id="@Html.IdFor(m=>m.RepositoryType)" class="input-large" required="Help us locate your code by selecting the location.">
-                                <option>Google Code - SVN</option>
-                                <option>Google Code - HG</option>
-                                <option>Github</option>
-                                <option>Bitbucket</option>
-                                <option>Sourceforge</option>
-                                <option>Codeplex</option>
-                                <option>Savannah</option>
-                                <option>Gitorious</option>
-                                <option>Lanchpad</option>
+                                <option value="@RepositoryEnum.GoogleSVN.ToString()">Google Code - SVN</option>
+                                <option value="@RepositoryEnum.GoogleHG.ToString()">Google Code - HG</option>
+                                <option value="@RepositoryEnum.Github.ToString()">Github</option>
+                                <option value="@RepositoryEnum.CodeplexSVN.ToString()">Codeplex</option>
+                                <option disabled="disabled">Bitbucket (soon)</option>
+                                <option disabled="disabled">Sourceforge (soon)</option>
+                                <option disabled="disabled">Savannah (soon)</option>
+                                <option disabled="disabled">Gitorious (soon)</option>
+                                <option disabled="disabled">Lanchpad (soon)</option>
                             </select>
                         </div>
                     </div>
 
                     <!-- Select Archive -->
                     <div class="control-group">
-                        <label class="control-label" for="ddArchiveType">Archive</label>
+                        <label class="control-label" for="@Html.IdFor(m=>m.ArchiveType)">Archive</label>
                         <div class="controls">
                             <select id="@Html.IdFor(m=>m.ArchiveType)" class="input-small">
-                                <option>.zip</option>
-                                <option>.tar.gz</option>
+                                <option>@ArchiveType.ZIP.Extension</option>
+                                <option>@ArchiveType.TAR_GZ.Extension</option>
                             </select>
                         </div>
                     </div>
@@ -93,7 +101,36 @@
             }); 
         });*/
 
-            $(document).ready(function() {
+            $(document).ready(function () {
+
+                //SOCIAL CODE 
+                $('.socialMedia > a').click(function () {
+                    var selected_option = null;
+                    switch ($(this).data('original-title')) {
+                        case '@RepositoryEnum.GoogleSVN.ToString()':
+                           selected_option = '@RepositoryEnum.GoogleSVN.ToString()';
+                            break;
+                        case '@RepositoryEnum.Github.ToString()':
+                            selected_option = '@RepositoryEnum.Github.ToString()';
+                            break;
+                        case '@RepositoryEnum.CodeplexSVN.ToString()':
+                            selected_option = '@RepositoryEnum.CodeplexSVN.ToString()';
+                            break;
+                        default:
+                            alert($(this).data('original-title') + ' is not supported');
+                            break;
+                    }
+
+                    if (selected_option === null) { return; }
+                    $("select[id$='@Html.IdFor(m=>m.RepositoryType)'] option[value='"+ selected_option +"']").attr("selected", "selected");
+                });
+
+                //REPOSITORY FORMAT
+                $('#@Html.IdFor(m=>m.RepositoryType)').change(function () {
+
+                });
+
+                //API
                 var $wait = $('#wait');
                 $wait.hide();
 
@@ -102,11 +139,10 @@
                 
                 $('#submitForm').submit(function (e) {
                     e.preventDefault();
-                    var request = {
-                        'Url': $('#@Html.IdFor(m=>m.Url)').val(),
-                        'ArchiveType': $('#@Html.IdFor(m=>m.ArchiveType)').val(),
-                        'RepositoryType': $('#@Html.IdFor(m=>m.RepositoryType)').val()
-                    };
+                    var url = $('#@Html.IdFor(m=>m.Url)').val();
+                    var repo = $('#@Html.IdFor(m=>m.RepositoryType)').val(); 
+                    var archive = $('#@Html.IdFor(m=>m.ArchiveType)').val();
+                    var request = { 'Url': url, 'ArchiveType': archive, 'RepositoryType': repo };
                     // if ($(this).valid()) {
                     $.ajax({
                         url: this.action,
@@ -115,6 +151,14 @@
                         beforeSend: function (x, o) {
                             $wait.show();
                             $button.button('disable');
+
+                            // VERIFY URL
+                            var urlData = {'Url': url, 'repositoryValue': repo };
+                            $.post('/api/ValidateUrl/', urlData, function (result) {
+                                alert(result);
+                                return result.IsValid;
+
+                            }, 'json');
                         },
                         fail: function (request, status, error) {
                             var errorMessage;

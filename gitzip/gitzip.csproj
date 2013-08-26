@@ -55,6 +55,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -179,8 +180,12 @@
     <Compile Include="api\repo\util\RepositoryEnum.cs" />
     <Compile Include="api\repo\RepositoryBase.cs" />
     <Compile Include="api\repo\provider\SvnHttpManager.cs" />
+    <Compile Include="api\repo\util\RepositoryType.cs" />
+    <Compile Include="api\repo\util\ValidationHelper.cs" />
+    <Compile Include="api\repo\util\ValidationModel.cs" />
     <Compile Include="api\RetrievalManager.cs" />
     <Compile Include="api\repo\provider\SvnManager.cs" />
+    <Compile Include="api\ValidationController.cs" />
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -198,6 +203,7 @@
     <Compile Include="api\repo\model\FolderLinkData.cs" />
     <Compile Include="api\repo\model\PageLink.cs" />
     <Compile Include="Models\api\DownloadModel.cs" />
+    <Compile Include="Models\GitzipContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="util\ArchiveHelper.cs" />
     <Compile Include="util\FileStorage.cs" />
@@ -206,6 +212,7 @@
     <Compile Include="util\StopException.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\gitzip.sdf" />
     <Content Include="Content\bootstrap\bootstrap-responsive.min.css" />
     <Content Include="Content\bootstrap\bootstrap.css" />
     <Content Include="Content\bootstrap\bootstrap.min.css" />
@@ -327,7 +334,6 @@
     <Content Include="Views\Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Content\icons\" />
   </ItemGroup>
   <ItemGroup>
