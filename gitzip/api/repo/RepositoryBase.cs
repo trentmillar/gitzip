@@ -197,6 +197,8 @@ namespace gitzip.api
         {
             string page = null;
             bool retry = true;
+            int consecutiveErrors = 0;
+
             while (retry)
             {
                 if (WaitingForStop.WaitOne(0, false))
@@ -206,10 +208,15 @@ namespace gitzip.api
                 {
                     page = DownloadUrl(uri.ToString());
                     retry = false;
+                    consecutiveErrors = 0;
                 }
                 catch (Exception ex)
                 {
                     Messaging.WriteToScreen("Failed to download: " + ex.Message);
+                    if(++consecutiveErrors > 5)
+                    {
+                        return null;
+                    }
                 }
             }
             return page;
