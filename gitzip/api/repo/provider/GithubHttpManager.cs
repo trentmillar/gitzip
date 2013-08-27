@@ -14,6 +14,11 @@ namespace gitzip.api
         {
             Guard.AssertNotNullOrEmpty(args.Url, "Github repository URL must be set.");
 
+            if (!args.Url.EndsWith("/"))
+            {
+                args.Url += "/";
+            }
+
             _targetUrl = new Uri(args.Url);
 
             List<PageLink> links = ParseGitLinks(_targetUrl);
