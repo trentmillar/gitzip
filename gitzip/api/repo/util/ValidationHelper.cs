@@ -32,7 +32,7 @@ namespace gitzip.api.repo.util
                 foreach(var grp in match.Groups){
                     grp.ToString();
                 }
-                result.Message = string.Format("{0} does not match the expected URL for this online repository.\n{1} is an example of a valid {2} URL.",
+                result.Message = string.Format("'{0}' does not match the expected URL for this online repository.\n'{1}' is an example of a valid {2} URL.",
                     urlToValidate, repo.UrlExample, repo.DisplayName);
             }
             return result;

@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using gitzip.api.repo.util;
+using gitzip.Models.api;
 using gitzip.util;
 
 namespace gitzip.api
@@ -24,18 +25,21 @@ namespace gitzip.api
         }
 
         // POST api/validation
-        public HttpResponseMessage Post(string url, string repositoryValue)
+        public HttpResponseMessage Post(ValidationRequestModel model)
         {
-            RepositoryType repositoryType = RepositoryType.SelectRepositoryTypeByValue(repositoryValue);
-            try{
-                Guard.AssertNotNullOrEmpty(url, "A valid URL was not supplied");
-                Guard.AssertNotNullOrEmpty(repositoryValue, "A valid online repositoryValue was not supplied");
+            RepositoryType repositoryType = null;
+            try
+            {
+                Guard.AssertNotNull(model, "The request is empty.");
+                Guard.AssertNotNullOrEmpty(model.Url, "A valid URL was not supplied");
+                Guard.AssertNotNullOrEmpty(model.RepositoryType, "A valid online repositoryValue was not supplied");
+                repositoryType = RepositoryType.SelectRepositoryTypeByValue(model.RepositoryType);
                 Guard.AssertNotNull(repositoryType, "Online repositoryValue could not be found.");
             }
             catch(Exception e){
                 return Request.CreateResponse(HttpStatusCode.OK, new ValidationResultModel { IsValid = false, Message = e.Message });
             }
-            var result = ValidationHelper.ValidateRepositoryUrl(url, repositoryType);
+            var result = ValidationHelper.ValidateRepositoryUrl(model.Url, repositoryType);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 

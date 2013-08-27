@@ -1,32 +1,34 @@
 using System;
 using System.Linq;
+using gitzip.api.repo.util;
 
 namespace gitzip.api
 {
     public static class RepositoryHelper
     {
-        public static RepositoryEnum GetRepositoryTypeFromUrl(Uri url)
+        public static RepositoryType GetRepositoryTypeFromUrl(Uri url)
         {
             if(url.Host.Contains("github.com"))
-                return RepositoryEnum.Github;
+                return RepositoryType.GITHUB;
 
             if (url.Host.Contains("googlecode.com")
                 || url.Host.Contains("code.google.com"))
             {
                 if (url.Segments.Any(s => s == "svn/"))
                 {
-                    return RepositoryEnum.GoogleSVN;
+                    return RepositoryType.GOOGLECODE_SVN;
                 }
                 else
                 {
-                    return  RepositoryEnum.GoogleHG;
+                    return RepositoryType.GOOGLECODE_HG;
                 }
             }
 
             if (url.Host.Contains("codeplex.com"))
-                return RepositoryEnum.CodeplexSVN;
+                return RepositoryType.CODEPLEX_SVN;
 
-            return RepositoryEnum.Unknown;
+            throw new Exception("The repository can't be derived from the URL " + url);
+            
         }
     }
 }

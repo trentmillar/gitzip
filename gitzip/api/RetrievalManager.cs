@@ -1,4 +1,5 @@
 ﻿using System;
+using gitzip.api.repo.util;
 using gitzip.Models.api;
 using gitzip.util;
 
@@ -16,13 +17,13 @@ namespace gitzip.api
             Guard.AssertNotNullOrEmpty(model.Url, "Source code repository URL is required.");
 
             _targetUrl = new Uri(model.Url);
-            RepositoryEnum repositoryType = RepositoryHelper.GetRepositoryTypeFromUrl(_targetUrl);
+            RepositoryType repositoryType = RepositoryHelper.GetRepositoryTypeFromUrl(_targetUrl);
  
             RepositoryBase repositoryBase;
             Arguments args = new Arguments {Url = _targetUrl.ToString(), Revision = null};
             Results? results = null;
 
-            if (repositoryType == RepositoryEnum.GoogleHG)
+            if (repositoryType == RepositoryType.GOOGLECODE_HG)
             {
                 //hack - https://code.google.com/r/steverauny-treeview/ - https://steverauny-treeview.googlecode.com/hg/
                 string segment = _targetUrl.Segments[2].Replace("/", "");
@@ -31,13 +32,13 @@ namespace gitzip.api
                 repositoryBase = new SvnHttpManager();
                 results = repositoryBase.Run(args);
             }
-            else if(repositoryType == RepositoryEnum.CodeplexSVN
-                || repositoryType == RepositoryEnum.GoogleSVN)
+            else if (repositoryType == RepositoryType.CODEPLEX_SVN
+                || repositoryType == RepositoryType.GOOGLECODE_SVN)
             {
                 repositoryBase = new SvnHttpManager();
                 results = repositoryBase.Run(args);
             }
-            else if (repositoryType == RepositoryEnum.Github)
+            else if (repositoryType == RepositoryType.GITHUB)
             {
                 repositoryBase = new GithubHttpManager();
                 results = repositoryBase.Run(args);

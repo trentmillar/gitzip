@@ -177,7 +177,6 @@
     <Compile Include="api\repo\provider\GithubHttpManager.cs" />
     <Compile Include="api\repo\util\Messaging.cs" />
     <Compile Include="api\repo\util\RepositoryHelper.cs" />
-    <Compile Include="api\repo\util\RepositoryEnum.cs" />
     <Compile Include="api\repo\RepositoryBase.cs" />
     <Compile Include="api\repo\provider\SvnHttpManager.cs" />
     <Compile Include="api\repo\util\RepositoryType.cs" />
@@ -185,7 +184,7 @@
     <Compile Include="api\repo\util\ValidationModel.cs" />
     <Compile Include="api\RetrievalManager.cs" />
     <Compile Include="api\repo\provider\SvnManager.cs" />
-    <Compile Include="api\ValidationController.cs" />
+    <Compile Include="api\ValidateUrlController.cs" />
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -202,6 +201,7 @@
     <Compile Include="api\repo\model\FileDownloadData.cs" />
     <Compile Include="api\repo\model\FolderLinkData.cs" />
     <Compile Include="api\repo\model\PageLink.cs" />
+    <Compile Include="Models\api\ValidateUrlModel.cs" />
     <Compile Include="Models\api\DownloadModel.cs" />
     <Compile Include="Models\GitzipContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

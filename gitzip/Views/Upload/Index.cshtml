@@ -1,31 +1,33 @@
 ﻿@using gitzip.api;
 @using gitzip.util;
+@using gitzip.api.repo.util;
 
 @model gitzip.Models.api.DownloadModel
 @{
     ViewBag.Title = "GitZip: instantly download your favorite source code";
     Layout = "~/Views/Shared/_GitzipLayout.cshtml";
-    
-    IDictionary<RepositoryEnum, string> repoNames = new Dictionary<RepositoryEnum, string>();
-    foreach(string s in Enum.GetNames(typeof(RepositoryEnum))){
-        
-    }
 }
 
 <div class="wrapper">
+    <div id="error-box" class="alert alert-block">  
+  <a class="close" data-dismiss="alert">×</a>  
+  <h4 class="alert-heading">Warning!</h4>  
+ <span class="error-text" />
+</div>
+
     <div class="comingsoonBlk">
         <h1>Download Code</h1>
         <p>We are pleased to anounced that our website is launching very soon.<br>
                                                                               We are working very hard to get ready it.
         </p>
         <div class="socialMedia">
-            <a href="#" data-placement="top" data-original-title="@RepositoryEnum.GoogleSVN.ToString()">
+            <a href="#" data-placement="top" data-original-title="@RepositoryType.GOOGLECODE_SVN.Value">
                 <img style="width:32px" src="~/Content/images/google-code.png" alt="Google Code" title="Google Code">
             </a>
-            <a href="#" data-placement="top" data-original-title="@RepositoryEnum.Github.ToString()">
+            <a href="#" data-placement="top" data-original-title="@RepositoryType.GITHUB.Value">
                 <img style="width:32px" src="~/Content/images/github.png" alt="Github" title="Github">
             </a>
-            <a href="#" data-placement="top" data-original-title="@RepositoryEnum.CodeplexSVN.ToString()">
+            <a href="#" data-placement="top" data-original-title="@RepositoryType.CODEPLEX_SVN.Value">
                 <img style="width:32px" src="~/Content/images/codeplex.png" alt="Codeplex" title="Codeplex">
             </a>
         </div>
@@ -51,10 +53,10 @@
                         <label class="control-label" for="@Html.IdFor(m=>m.RepositoryType)">Online Location</label>
                         <div class="controls">
                             <select id="@Html.IdFor(m=>m.RepositoryType)" class="input-large" required="Help us locate your code by selecting the location.">
-                                <option value="@RepositoryEnum.GoogleSVN.ToString()">Google Code - SVN</option>
-                                <option value="@RepositoryEnum.GoogleHG.ToString()">Google Code - HG</option>
-                                <option value="@RepositoryEnum.Github.ToString()">Github</option>
-                                <option value="@RepositoryEnum.CodeplexSVN.ToString()">Codeplex</option>
+                                <option value="@RepositoryType.GOOGLECODE_SVN.Value">@RepositoryType.GOOGLECODE_SVN.DisplayName</option>
+                                <option value="@RepositoryType.GOOGLECODE_HG.Value">@RepositoryType.GOOGLECODE_HG.DisplayName</option>
+                                <option value="@RepositoryType.GITHUB.Value">@RepositoryType.GITHUB.DisplayName</option>
+                                <option value="@RepositoryType.CODEPLEX_SVN.Value">@RepositoryType.CODEPLEX_SVN.DisplayName</option>
                                 <option disabled="disabled">Bitbucket (soon)</option>
                                 <option disabled="disabled">Sourceforge (soon)</option>
                                 <option disabled="disabled">Savannah (soon)</option>
@@ -107,14 +109,14 @@
                 $('.socialMedia > a').click(function () {
                     var selected_option = null;
                     switch ($(this).data('original-title')) {
-                        case '@RepositoryEnum.GoogleSVN.ToString()':
-                           selected_option = '@RepositoryEnum.GoogleSVN.ToString()';
+                        case '@RepositoryType.GOOGLECODE_SVN.Value':
+                            selected_option = '@RepositoryType.GOOGLECODE_SVN.Value';
                             break;
-                        case '@RepositoryEnum.Github.ToString()':
-                            selected_option = '@RepositoryEnum.Github.ToString()';
+                        case '@RepositoryType.GITHUB.Value':
+                            selected_option = '@RepositoryType.GITHUB.Value';
                             break;
-                        case '@RepositoryEnum.CodeplexSVN.ToString()':
-                            selected_option = '@RepositoryEnum.CodeplexSVN.ToString()';
+                        case '@RepositoryType.CODEPLEX_SVN.Value':
+                            selected_option = '@RepositoryType.CODEPLEX_SVN.Value';
                             break;
                         default:
                             alert($(this).data('original-title') + ' is not supported');
@@ -131,6 +133,9 @@
                 });
 
                 //API
+                var $errorBox = $('#error-box');
+                $errorBox.hide();
+
                 var $wait = $('#wait');
                 $wait.hide();
 
@@ -139,60 +144,62 @@
                 
                 $('#submitForm').submit(function (e) {
                     e.preventDefault();
+                    var $this = this;
                     var url = $('#@Html.IdFor(m=>m.Url)').val();
                     var repo = $('#@Html.IdFor(m=>m.RepositoryType)').val(); 
                     var archive = $('#@Html.IdFor(m=>m.ArchiveType)').val();
-                    var request = { 'Url': url, 'ArchiveType': archive, 'RepositoryType': repo };
-                    // if ($(this).valid()) {
-                    $.ajax({
-                        url: this.action,
-                        type: 'POST',
-                        data: request, //$(this).serialize(),
-                        beforeSend: function (x, o) {
-                            $wait.show();
-                            $button.button('disable');
+                    var json_request = { 'Url': url, 'ArchiveType': archive, 'RepositoryType': repo };
 
-                            // VERIFY URL
-                            var urlData = {'Url': url, 'repositoryValue': repo };
-                            $.post('/api/ValidateUrl/', urlData, function (result) {
-                                alert(result);
-                                return result.IsValid;
-
-                            }, 'json');
-                        },
-                        fail: function (request, status, error) {
-                            var errorMessage;
-
-                            if (request.responseText === undefined) {
-                                errorMessage = "Fail:\nrequest:" + request + "\nstatus:" + status + "\nerror:" + error;
-                            } else {
-                                errorMessage = "Fail:\nrequest:" + request.responseText + "\nstatus:" + status + "\nerror:" + error;
-                            }
-                            console.log(errorMessage);
-                            $wait.hide();
-                            $button.button('enable');
-                        },
-                        complete: function (xhr, status) {
-                            $wait.hide();
-                            $button.button('enable');
-                            switch (status) {
-                                case "success":
-                                    alert(xhr);
-                                    break;
-                                case "error":
-                                case "timeout":
-                                case "abort":
-                                case "parseerror":
-                                case "notmodified":
-                                    alert('error');
-                                    break;
-                            }
+                    // VERIFY URL
+                    var urlData = { 'Url': url, 'RepositoryType': repo };
+                    $.post('/api/ValidateUrl/', urlData, function (result) {
+                        console.log(result);
+                        if (result.IsValid) {
+                            $.ajax({
+                                url: $this.action,
+                                type: 'POST',
+                                data: json_request,
+                                beforeSend: function (x, o) {
+                                    $wait.show();
+                                    $button.button('disable');
+                                },
+                                fail: function (request, status, error) {
+                                    var errorMessage;
+                                    if (request.responseText === undefined) {
+                                        errorMessage = "Fail:\nrequest:" + request + "\nstatus:" + status + "\nerror:" + error;
+                                    } else {
+                                        errorMessage = "Fail:\nrequest:" + request.responseText + "\nstatus:" + status + "\nerror:" + error;
+                                    }
+                                    console.log(errorMessage);
+                                    $wait.hide();
+                                    $button.button('enable');
+                                },
+                                complete: function (xhr, status) {
+                                    $wait.hide();
+                                    $button.button('enable');
+                                    switch (status) {
+                                        case "success":
+                                            alert(xhr);
+                                            break;
+                                        case "error":
+                                        case "timeout":
+                                        case "abort":
+                                        case "parseerror":
+                                        case "notmodified":
+                                            alert('error');
+                                            break;
+                                    }
+                                }
+                            });
+                        }
+                        else {
+                            $('#@Html.IdFor(m=>m.Url)').popover('show');//{ 'placement': 'top', 'content': result.Message });
+                            //$errorBox.show();
+                            //$('#error-box > span').text(result.Message);
                         }
                     });
                     return false;
                 });
             });
-            
-            
-    </script> 
-}
+            </script>
+    }
